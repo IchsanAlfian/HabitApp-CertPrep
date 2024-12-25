@@ -10,6 +10,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -49,8 +50,20 @@ class HabitListActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, factory).get(HabitListViewModel::class.java)
 
         //TODO 7 : Submit PagingData to adapter and add intent to detail
+        viewModel.habits.observe(this) { pagingData ->
+            submitDataToAdapter(pagingData)
+        }
 
-
+    }
+    private fun submitDataToAdapter(pagingData: PagingData<Habit>) {
+        val adapter = HabitAdapter {
+            val intent = Intent(this@HabitListActivity, DetailHabitActivity::class.java)
+            intent.putExtra(HABIT_ID, it.id)
+            startActivity(intent)
+        }
+        recycler.adapter = adapter
+        // Submit PagingData directly to the adapter
+        adapter.submitData(lifecycle, pagingData)
     }
 
 
