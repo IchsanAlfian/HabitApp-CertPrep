@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import com.dicoding.habitapp.R
 
@@ -48,6 +49,17 @@ class SettingsActivity : AppCompatActivity() {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
             //TODO 11 : Update theme based on value in ListPreference
+            val preferenceTheme = findPreference<ListPreference>(getString(R.string.pref_key_dark))
+            preferenceTheme?.setOnPreferenceChangeListener { preference, newValue ->
+                val selectedTheme = when (newValue) {
+                    getString(R.string.pref_dark_on) -> AppCompatDelegate.MODE_NIGHT_YES
+                    getString(R.string.pref_dark_off) -> AppCompatDelegate.MODE_NIGHT_NO
+                    getString(R.string.pref_dark_follow_system) -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                    else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                }
+                updateTheme(selectedTheme)
+                true
+            }
         }
 
         private fun updateTheme(mode: Int): Boolean {

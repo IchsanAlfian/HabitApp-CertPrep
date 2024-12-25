@@ -6,9 +6,18 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.IntentCompat.getParcelableExtra
 import androidx.lifecycle.ViewModelProvider
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.dicoding.habitapp.R
 import com.dicoding.habitapp.data.Habit
+import com.dicoding.habitapp.notification.NotificationWorker
 import com.dicoding.habitapp.utils.HABIT
+import com.dicoding.habitapp.utils.HABIT_ID
+import com.dicoding.habitapp.utils.HABIT_TITLE
+import com.dicoding.habitapp.utils.NOTIFICATION_CHANNEL_ID
+import com.dicoding.habitapp.utils.NOTIF_UNIQUE_WORK
 
 class CountDownActivity : AppCompatActivity() {
 
@@ -19,20 +28,37 @@ class CountDownActivity : AppCompatActivity() {
 
         val habit = getParcelableExtra(intent, HABIT, Habit::class.java)
 
+
+
         if (habit != null){
             findViewById<TextView>(R.id.tv_count_down_title).text = habit.title
 
             val viewModel = ViewModelProvider(this).get(CountDownViewModel::class.java)
 
             //TODO 10 : Set initial time and observe current time. Update button state when countdown is finished
+            viewModel.setInitialTime(habit.minutesFocus)
+            viewModel.currentTimeString.observe(this) {
+                findViewById<TextView>(R.id.tv_count_down).text = it
+            }
+            viewModel.eventCountDownFinish.observe(this, { countDownFinish ->
+                if (countDownFinish) {
+                    updateButtonState(false)
+                }
+
+            })
 
             //TODO 13 : Start and cancel One Time Request WorkManager to notify when time is up.
 
             findViewById<Button>(R.id.btn_start).setOnClickListener {
+                updateButtonState(true)
+                viewModel.startTimer()
 
             }
 
             findViewById<Button>(R.id.btn_stop).setOnClickListener {
+                updateButtonState(false)
+                viewModel.resetTimer()
+
 
             }
         }

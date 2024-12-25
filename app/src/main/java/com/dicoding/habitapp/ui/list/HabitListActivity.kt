@@ -16,9 +16,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.dicoding.habitapp.R
 import com.dicoding.habitapp.data.Habit
+import com.dicoding.habitapp.setting.SettingsActivity
 import com.dicoding.habitapp.ui.ViewModelFactory
 import com.dicoding.habitapp.ui.add.AddHabitActivity
 import com.dicoding.habitapp.ui.detail.DetailHabitActivity
+import com.dicoding.habitapp.ui.random.RandomHabitActivity
 import com.dicoding.habitapp.utils.Event
 import com.dicoding.habitapp.utils.HABIT_ID
 import com.dicoding.habitapp.utils.HabitSortType
@@ -80,11 +82,29 @@ class HabitListActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        return true
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return true
+        return when (item.itemId) {
+            R.id.action_sort -> {
+                showSortingPopUpMenu()
+                return true
+            }
+            R.id.action_random -> {
+                val intent = Intent(this, RandomHabitActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.action_settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+
+        }
     }
 
     private fun showSortingPopUpMenu() {
