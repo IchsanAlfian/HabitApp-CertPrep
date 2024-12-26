@@ -146,6 +146,9 @@ class HabitListActivity : AppCompatActivity() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val habit = (viewHolder as HabitAdapter.HabitViewHolder).getHabit
                 viewModel.deleteHabit(habit)
+                viewModel.snackbarText.observe(this@HabitListActivity) {
+                    showSnackBar(it)
+                }
             }
 
         })
