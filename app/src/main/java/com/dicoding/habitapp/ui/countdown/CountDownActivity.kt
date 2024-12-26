@@ -27,6 +27,7 @@ class CountDownActivity : AppCompatActivity() {
         supportActionBar?.title = "Count Down"
 
         val habit = getParcelableExtra(intent, HABIT, Habit::class.java)
+        val channel = getString(R.string.notify_channel_name)
 
 
 
@@ -43,6 +44,19 @@ class CountDownActivity : AppCompatActivity() {
             viewModel.eventCountDownFinish.observe(this, { countDownFinish ->
                 if (countDownFinish) {
                     updateButtonState(false)
+                    val dataBuilder = Data.Builder()
+                        .putString(NOTIFICATION_CHANNEL_ID, channel)
+                        .putString(HABIT_TITLE, habit.title)
+                        .putInt(HABIT_ID, habit.id)
+                        .build()
+                    val requestOneTime = OneTimeWorkRequest.Builder(NotificationWorker::class.java)
+                        .setInputData(dataBuilder)
+                        .addTag(channel)
+                        .build()
+                    WorkManager
+                        .getInstance(this)
+                        .enqueueUniqueWork(NOTIF_UNIQUE_WORK,ExistingWorkPolicy.REPLACE, requestOneTime)
+
                 }
 
             })
@@ -58,6 +72,7 @@ class CountDownActivity : AppCompatActivity() {
             findViewById<Button>(R.id.btn_stop).setOnClickListener {
                 updateButtonState(false)
                 viewModel.resetTimer()
+                cancelNotificationWorker()
 
 
             }
@@ -68,5 +83,8 @@ class CountDownActivity : AppCompatActivity() {
     private fun updateButtonState(isRunning: Boolean) {
         findViewById<Button>(R.id.btn_start).isEnabled = !isRunning
         findViewById<Button>(R.id.btn_stop).isEnabled = isRunning
+    }
+    private fun cancelNotificationWorker() {
+        WorkManager.getInstance(this).cancelUniqueWork(NOTIF_UNIQUE_WORK)
     }
 }
